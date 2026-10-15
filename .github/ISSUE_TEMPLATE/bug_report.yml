@@ -1,0 +1,90 @@
+name: 缺陷报告
+description: 报告一个可复现的问题
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交前请先搜索已有 issue。
+        **安全问题不要开 issue**，请到后端仓库 [PayPrint](https://github.com/Sparkzure/PayPrint) 按 SECURITY.md 私下报告。
+
+  - type: input
+    id: version
+    attributes:
+      label: 版本 / 提交
+      description: 启动日志第一行会报出二进制版本与前端产物来源；不确定就填 `git rev-parse --short HEAD` 的结果
+      placeholder: v0.1.0 或 a1b2c3d
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: 涉及部分
+      multiple: false
+      options:
+        - 用户端页面（登录 / 注册 / 新建打印 / 订单 / 设备 / 账户）
+        - 管理面板页面
+        - 移动端布局 / 主题
+        - 签名 / 设备身份（lib/sign.ts、lib/device.ts）
+        - 构建 / 类型检查
+        - 文档
+        - 其它
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: 浏览器与系统
+      description: 例如 Chrome 130 / Android 15，iPhone Safari
+      placeholder: Chrome 130 / Windows 11
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么
+      description: 实际现象。涉及订单或打印任务时，请写出它们当时的状态。
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期行为
+      description: 你期望发生什么，依据是什么（文档里的哪一句 / 哪个约定）
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      description: 越具体越好；能给出面板上的点选顺序或截图最好
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 控制台输出
+      description: 浏览器控制台报错、网络请求响应等。**提交前请删掉令牌、账号等敏感信息。**
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 确认
+      options:
+        - label: 我已搜索过已有 issue 与文档，没有找到相同问题
+          required: true
+        - label: 这与安全漏洞无关（安全漏洞请走后端仓库 SECURITY.md 的私下渠道）
+          required: true

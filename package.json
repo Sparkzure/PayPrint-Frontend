@@ -1,0 +1,37 @@
+{
+  "name": "payprint-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "homepage": "https://sparkzure.github.io/PayPrint-Docs/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sparkzure/PayPrint-Frontend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Sparkzure/PayPrint-Frontend/issues"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "@hope-ui/solid": "https://codeload.github.com/OpenListTeam/hope-ui/tar.gz/264b7511e37dc6e5a5fb8f67f8801d94a058a700",
+    "@solid-primitives/i18n": "2.2.1",
+    "@solidjs/router": "0.9.1",
+    "@tanstack/solid-query": "5.104.2",
+    "solid-icons": "1.2.0",
+    "solid-js": "1.9.15",
+    "solid-motionone": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "5.6.3",
+    "vite": "5.4.11",
+    "vite-plugin-solid": "2.11.14"
+  }
+}

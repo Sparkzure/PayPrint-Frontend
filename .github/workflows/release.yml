@@ -1,0 +1,49 @@
+name: Release (dist)
+
+# Release 发布后构建 dist，打成 payprint-web-<tag>.tar.gz（附 SHA256）
+# 上传到该 Release。后端仓库（PayPrint）的构建脚本按「最新 Release」或指定
+# tag 下载这个文件并用 go:embed 打进单二进制——所以这里没发版，后端就取不到新前端。
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-dist-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+env:
+  TAG: ${{ github.event.release.tag_name }}
+
+jobs:
+  dist:
+    name: 构建并上传 dist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: npm ci
+        run: npm ci --no-audit --no-fund
+
+      - name: 构建（含类型检查）
+        run: npm run build
+
+      - name: 打包（tar.gz + SHA256）
+        run: |
+          ASSET="payprint-web-${TAG}.tar.gz"
+          tar -czf "$ASSET" -C dist .
+          sha256sum "$ASSET" > "$ASSET.sha256"
+
+      - name: 上传到 Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ env.TAG }}" "payprint-web-${{ env.TAG }}.tar.gz" "payprint-web-${{ env.TAG }}.tar.gz.sha256" --clobber

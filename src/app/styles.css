@@ -1,0 +1,404 @@
+/*
+ * 手写样式的唯一真源（主题 token 与组件级 baseStyle 在 theme.ts）。
+ *
+ * 这些规则原先放在 theme.ts 的 globalStyles（Hope UI 的 globalCss）里，踩了两个坑：
+ *
+ *   1. 它一被调用就把规则插进样式表，而 Hope UI 的 CSSReset 是 HopeProvider 建立时注入的，
+ *      特异性相同、后插的赢 —— body 的文本色就这么被 reset 压掉，落到浏览器默认值上。
+ *      浏览器默认文本色由 color-scheme 决定，于是"背景跟着模式变、文字不跟"。
+ *   2. globalCss 不生成 at-rule：`@keyframes ppFadeIn` 根本没进样式表，`.pp-page` 挂着
+ *      动画名却没有关键帧，等于没动画；`@media (prefers-reduced-motion: reduce)` 同样丢了。
+ *
+ * 换成原生 CSS 后这两个问题都不存在（打包顺序不再决定胜负）。`body` 仍用 `:root body`
+ * 抬一级特异性，防止将来顺序再有变化时被 reset 压掉。
+ *
+ * 颜色一律取 Hope UI 主题变量（--hope-colors-*），随黑白模式切换。
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+:root body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  color: var(--hope-colors-text);
+  background-color: var(--hope-colors-background);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* 路由切换时整页淡入（OpenList 的轻过渡感）。 */
+@keyframes ppFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.pp-page {
+  animation: ppFadeIn 0.2s ease-out;
+}
+
+.pp-card {
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.pp-card:hover {
+  border-color: var(--hope-colors-primary);
+}
+
+.pp-drop {
+  transition: border-color 0.2s, background-color 0.2s, transform 0.2s;
+}
+
+code,
+pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--hope-colors-border);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* 系统开了"减少动态效果"就全关：入场、进度条、按钮缩放一起停。 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/*
+ * 顶栏：半透明 + 毛玻璃（OpenList 的 Base 布局同款观感），滚动时内容从下方透过。
+ *
+ * 底色必须取主题 token，不能写死 rgba：这里原先手工抄了一份 surface1 的亮/暗值
+ * （#FFFFFF / #0F1626），theme.ts 一改 token，顶栏就与全站脱节了。
+ * color-mix 让"同一个 token 的 82% 不透明版本"成立；不支持的老浏览器落到上一行，
+ * 退化成不透明底色，也不会出现透明顶栏。
+ */
+.pp-header {
+  background-color: var(--hope-colors-surface1);
+  background-color: color-mix(in srgb, var(--hope-colors-surface1) 82%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+/* 品牌位 */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------------
+ * 导航容器与项（顶栏横向 / 管理端侧栏纵向共用，组件是 ui.tsx 的 NavLinks）
+ *
+ * 激活态照 OpenList 侧栏的做法：底色画在项自己身上（info4 淡蓝底 + info11 深蓝字），
+ * 不做整块滑动的背景。info 是 Hope UI 内置调色板，与 OpenList 是同一套色阶，
+ * 所以这里的观感与 OpenList 一致（不要换成自定义的 primarySoft，会跟它分家）。
+ * --------------------------------------------------------------- */
+.pp-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  /* 允许收缩到内部换行，否则导航会把品牌一起挤出屏幕 */
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* 侧栏纵向：容器与每一项都撑满侧栏宽度，底色才是通栏的一条 */
+.pp-nav-col {
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* 顶栏导航项 */
+.nav-link {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-decoration: none;
+  color: var(--hope-colors-subtleText);
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+}
+
+/* 管理端侧栏项 */
+.side-link {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-decoration: none;
+  color: var(--hope-colors-subtleText);
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+}
+
+/* 未选中时悬停给一层中性底（OpenList 的 hoverColor 手感），激活项不吃这条 */
+.nav-link:hover:not(.active),
+.side-link:hover:not(.active) {
+  background: var(--hope-colors-neutral4);
+}
+
+.nav-link.active,
+.side-link.active {
+  background: var(--hope-colors-info4);
+  color: var(--hope-colors-info11);
+}
+
+.link-primary {
+  color: var(--hope-colors-primary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.link-primary:hover {
+  color: var(--hope-colors-primaryHover);
+}
+
+/* 一次性明文令牌展示框 */
+.token-box {
+  display: block;
+  font-size: 12px;
+  background: var(--hope-colors-surface3);
+  padding: 6px 10px;
+  border-radius: 8px;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+/* 管理面板侧栏：桌面显示、窄屏隐藏；横向菜单反之 */
+.admin-mobile-nav {
+  display: block;
+}
+
+.admin-sidebar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .admin-mobile-nav {
+    display: none;
+  }
+
+  .admin-sidebar {
+    display: block;
+  }
+}
+
+/* ---------------------------------------------------------------
+ * 路由切换进度条（OpenList 的做法：useIsRouting 驱动的不确定进度条）
+ * --------------------------------------------------------------- */
+.pp-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 9999;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pp-progress-bar {
+  height: 100%;
+  width: 35%;
+  background: var(--hope-colors-primary);
+  animation: ppProgress 0.9s ease-in-out infinite;
+}
+
+@keyframes ppProgress {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+/* ---------------------------------------------------------------
+ * 可读性相关的少量微调
+ * --------------------------------------------------------------- */
+
+/* 长文本（说明、提示）统一行高与断行，避免贴太紧 */
+.pp-help {
+  line-height: 1.6;
+}
+
+/* 表格行逐项入场。div 不能包 <tr>（会破坏 tbody 结构），所以表格行走 CSS 动画，
+   延迟由 motion.tsx 的 rowEnter() 内联写入；只淡入不位移，免得整表行高在抖。 */
+.pp-row-enter {
+  animation: ppRowIn 0.2s ease-out both;
+}
+
+@keyframes ppRowIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* 数据表：行 hover 高亮 + 表头分隔，行列更容易跟读 */
+.pp-table tbody tr {
+  transition: background-color 0.15s;
+}
+
+.pp-table tbody tr:hover {
+  background: var(--hope-colors-surface3);
+}
+
+.pp-table thead th {
+  background: var(--hope-colors-surface3);
+}
+
+/* 数值列/Mono 数字（金额、订单号、任务号）对齐更整齐 */
+.pp-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 键值信息网格与表单网格：窄屏一列，宽屏两列（Hope UI 的 style prop 不支持响应式对象，
+   这类断点只能落在 CSS 里） */
+.pp-grid {
+  display: grid;
+  gap: 14px 20px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 720px) {
+  .pp-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pp-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* 列表卡片整块可点：去掉链接的下划线并继承文字色 */
+.order-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 选中的选择卡（打印机 / 文件）：底色 + 左边一条主色标记，扫一眼就知道选了哪个 */
+.pp-card.selected {
+  box-shadow: inset 3px 0 0 0 var(--hope-colors-primary);
+}
+
+/* 高级设置的展开开关（箭头旋转，OpenList 的 SideMenu 同款做法） */
+.pp-adv-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 2px 0;
+  background: none;
+  border: none;
+  color: var(--hope-colors-text);
+  cursor: pointer;
+}
+
+.pp-adv-toggle:hover {
+  color: var(--hope-colors-primary);
+}
+
+.pp-caret {
+  transition: transform 0.2s;
+  color: var(--hope-colors-subtleText);
+}
+
+.pp-caret-open {
+  transform: rotate(90deg);
+}
+
+/* 胶囊选项组（OptionGroup）：替代原生 radio */
+.pp-opt {
+  padding: 6px 12px;
+  border: 1px solid var(--hope-colors-border);
+  border-radius: 10px;
+  background: var(--hope-colors-surface1);
+  color: var(--hope-colors-text);
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background-color 0.2s,
+    transform 0.2s;
+}
+
+.pp-opt:hover:not(.pp-opt-off) {
+  border-color: var(--hope-colors-primary);
+  color: var(--hope-colors-primary);
+}
+
+.pp-opt:active:not(.pp-opt-off) {
+  transform: scale(0.97);
+}
+
+.pp-opt.active {
+  border-color: var(--hope-colors-primary);
+  background: var(--hope-colors-primarySoft);
+  color: var(--hope-colors-primary);
+  font-weight: 600;
+}
+
+.pp-opt-off {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* 原生 button 不继承页面字体：自定义类按钮要显式继承，否则中文会跳成系统 UI 字体 */
+.pp-opt,
+.pp-adv-toggle {
+  font-family: inherit;
+}
+
+/* 可点卡片悬停时轻微上移（OpenList 的 hover 手感，幅度收敛到 1px 以免列表跳动）。
+   不用 box-shadow：选中态的左侧主色条也是 box-shadow，两者会互相覆盖。 */
+.pp-card:hover {
+  transform: translateY(-1px);
+}

@@ -1,0 +1,20 @@
+# EditorConfig: https://editorconfig.org
+# 让不同编辑器的缩进、换行与编码保持一致。仓库内的换行符统一为 LF，
+# 由 .gitattributes 保证；这里只是让编辑器在你敲下第一个字符前就对齐。
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.{md,markdown}]
+trim_trailing_whitespace = false
+
+# cmd.exe 只认 CRLF，这两个扩展名不要被规范化成 LF。
+[*.{cmd,bat}]
+end_of_line = crlf

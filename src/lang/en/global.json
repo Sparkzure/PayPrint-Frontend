@@ -1,0 +1,31 @@
+{
+  "global": {
+    "load_failed": "Failed to load",
+    "network_error": "Cannot reach the server. Check whether the service is running.",
+    "refresh": "Refresh",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "yes": "Yes",
+    "no": "No",
+    "open": "Open",
+    "closed": "Closed",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "give_up": "Discard changes",
+    "reason_placeholder": "Enter a reason (a default note is used if left empty)"
+  },
+  "nav": {
+    "print": "New print",
+    "orders": "My orders",
+    "devices": "My devices",
+    "account": "Account",
+    "logout": "Sign out",
+    "color_mode": "Color mode",
+    "color_light": "Light",
+    "color_dark": "Dark",
+    "color_system": "Follow system"
+  }
+}

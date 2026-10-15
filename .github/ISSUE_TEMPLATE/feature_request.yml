@@ -1,0 +1,38 @@
+name: 功能建议
+description: 提一个改进想法
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 想解决什么问题
+      description: 先描述你遇到的场景与痛点，比直接给方案有用得多
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 你设想的做法
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 考虑过的替代方案
+      description: 包括"什么都不做会怎样"
+    validations:
+      required: false
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: 是否触及既有约束
+      description: |
+        前端有一批硬约定（见后端仓库 `docs/DEVELOPMENT.md`）：
+        颜色只能取自 CSS 变量（深浅两套主题都要验证）、移动优先响应式、
+        触控目标 ≥ 44px、状态不能只靠颜色区分。涉及后端行为（下单 / 支付 / 打印链路）的建议
+        请到后端仓库 [PayPrint](https://github.com/Sparkzure/PayPrint) 提出。
+    validations:
+      required: false

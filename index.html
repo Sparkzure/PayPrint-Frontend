@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#F4F7FB" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#070B14" media="(prefers-color-scheme: dark)" />
+    <title>PayPrint · 自助打印</title>
+    <script>
+      /*
+       * 首屏前定好配色，避免主题闪一下白。
+       * 优先级：URL 的 ?theme=light|dark（显式指定，便于分享与排查）> 本地存储
+       * （hope-ui-color-mode，只会有 light/dark）> 系统偏好。
+       * DOM 上打 hope-ui-light / hope-ui-dark class，运行中由 app/ThemeSync.tsx 继续同步。
+       *
+       * 注意这里只认显式的 light/dark：'system' 是应用层自己的意图值（存
+       * payprint.color-mode），万一旧版本把它写进过 hope-ui-color-mode，也一律按系统偏好。
+       */
+      ;(function () {
+        try {
+          var forced = /[?&]theme=(light|dark)/.exec(window.location.search)
+          if (forced) {
+            localStorage.setItem('hope-ui-color-mode', forced[1])
+            localStorage.setItem('payprint.color-mode', forced[1])
+          }
+          var stored = localStorage.getItem('hope-ui-color-mode')
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          var dark = stored === 'light' ? false : stored === 'dark' ? true : prefersDark
+          document.documentElement.classList.toggle('hope-ui-dark', dark)
+          document.documentElement.classList.toggle('hope-ui-light', !dark)
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+        } catch (e) {
+          /* 读不到就交给 Hope UI 按系统偏好初始化 */
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
+</html>

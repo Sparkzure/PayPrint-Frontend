@@ -1,0 +1,31 @@
+{
+  "global": {
+    "load_failed": "加载失败",
+    "network_error": "无法连接服务，请确认服务是否已启动",
+    "refresh": "刷新",
+    "confirm": "确认",
+    "cancel": "取消",
+    "save": "保存",
+    "edit": "编辑",
+    "delete": "删除",
+    "yes": "是",
+    "no": "否",
+    "open": "开放",
+    "closed": "关闭",
+    "enabled": "启用",
+    "disabled": "停用",
+    "give_up": "放弃修改",
+    "reason_placeholder": "填写理由（留空将使用默认说明）"
+  },
+  "nav": {
+    "print": "新建打印",
+    "orders": "我的订单",
+    "devices": "我的设备",
+    "account": "账户",
+    "logout": "退出登录",
+    "color_mode": "配色模式",
+    "color_light": "浅色",
+    "color_dark": "深色",
+    "color_system": "跟随系统"
+  }
+}
